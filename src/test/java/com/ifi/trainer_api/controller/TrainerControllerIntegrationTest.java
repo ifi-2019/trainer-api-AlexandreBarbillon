@@ -1,5 +1,6 @@
 package com.ifi.trainer_api.controller;
 
+import com.ifi.trainer_api.bo.Pokemon;
 import com.ifi.trainer_api.bo.Trainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -46,5 +51,34 @@ class TrainerControllerIntegrationTest {
 
         assertEquals("Ash", trainers[0].getName());
         assertEquals("Misty", trainers[1].getName());
+    }
+
+    @Test
+    void createTrainer_shouldAddBrock(){
+        var brock = new Trainer();
+        var pokemons = new ArrayList<Pokemon>();
+        var geodude = new Pokemon(74,12);
+        var onix = new Pokemon(95,14);
+        pokemons.add(geodude);
+        pokemons.add(onix);
+        brock.setName("Brock");
+        brock.setTeam(pokemons);
+        this.controller.createTrainer(brock);
+        var new_brock = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/Brock", Trainer.class);
+        assertNotNull(new_brock);
+        assertEquals("Brock", new_brock.getName());
+        assertEquals(2, new_brock.getTeam().size());
+
+        assertEquals(74, new_brock.getTeam().get(0).getPokemonTypeId());
+        assertEquals(12, new_brock.getTeam().get(0).getLevel());
+        assertEquals(95, new_brock.getTeam().get(1).getPokemonTypeId());
+        assertEquals(14, new_brock.getTeam().get(1).getLevel());
+    }
+    @Test
+    void removeTrainer_ShouldRemoveAsh(){
+        this.controller.removeTrainer("Ash");
+        var ash = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/Ash", Trainer.class);
+        assertNull(ash);
+
     }
 }

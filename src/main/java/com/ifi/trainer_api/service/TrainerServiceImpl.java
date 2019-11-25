@@ -4,6 +4,8 @@ import com.ifi.trainer_api.bo.Trainer;
 import com.ifi.trainer_api.repository.TrainerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TrainerServiceImpl implements TrainerService {
     private TrainerRepository trainerRepository;
@@ -17,7 +19,8 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     public Trainer getTrainer(String name) {
-        return trainerRepository.findById(name).get();
+        Optional<Trainer> potentialTrainer = trainerRepository.findById(name);
+        return potentialTrainer.orElse(null);
     }
 
     public Trainer createTrainer(Trainer trainer) {
