@@ -20,7 +20,13 @@ public class TrainerServiceImpl implements TrainerService {
 
     public Trainer getTrainer(String name) {
         Optional<Trainer> potentialTrainer = trainerRepository.findById(name);
-        return potentialTrainer.orElse(null);
+        if(potentialTrainer.isEmpty()){
+            return null;
+        }
+        else{
+            return potentialTrainer.orElse(null);
+        }
+
     }
 
     public Trainer createTrainer(Trainer trainer) {

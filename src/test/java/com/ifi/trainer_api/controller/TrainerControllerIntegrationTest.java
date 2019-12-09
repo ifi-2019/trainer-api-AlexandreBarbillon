@@ -4,6 +4,7 @@ import com.ifi.trainer_api.bo.Pokemon;
 import com.ifi.trainer_api.bo.Trainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -27,14 +28,29 @@ class TrainerControllerIntegrationTest {
     @Autowired
     private TrainerController controller;
 
+    @Value("${spring.security.user.name}")
+    private String username;
+
+    @Value("${spring.security.user.password}")
+    private String password;
+
     @Test
     void trainerController_shouldBeInstanciated(){
         assertNotNull(controller);
     }
 
     @Test
+    void getTrainers_shouldThrowAnUnauthorized(){
+        var responseEntity = this.restTemplate
+                .getForEntity("http://localhost:" + port + "/trainers/Ash", Trainer.class);
+        assertNotNull(responseEntity);
+        assertEquals(401, responseEntity.getStatusCodeValue());
+    }
+
+
+    @Test
     void getTrainer_withNameAsh_shouldReturnAsh() {
-        var ash = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/Ash", Trainer.class);
+        var ash = this.restTemplate.withBasicAuth(username, password).getForObject("http://localhost:" + port + "/trainers/Ash", Trainer.class);
         assertNotNull(ash);
         assertEquals("Ash", ash.getName());
         assertEquals(1, ash.getTeam().size());
@@ -45,7 +61,7 @@ class TrainerControllerIntegrationTest {
 
     @Test
     void getAllTrainers_shouldReturnAshAndMisty() {
-        var trainers = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/", Trainer[].class);
+        var trainers = this.restTemplate.withBasicAuth(username, password).getForObject("http://localhost:" + port + "/trainers/", Trainer[].class);
         assertNotNull(trainers);
         assertEquals(2, trainers.length);
 
@@ -64,8 +80,9 @@ class TrainerControllerIntegrationTest {
         brock.setName("Brock");
         brock.setTeam(pokemons);
         this.controller.createTrainer(brock);
-        var new_brock = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/Brock", Trainer.class);
-        assertNotNull(new_brock);
+        var new_brock = this.restTemplate.withBasicAuth(username, password).getForObject("http://localhost:" + port + "/trainers/Brock", Trainer.class);
+        assertNotNull(new_brock.getName());
+        assertNotNull(new_brock.getTeam());
         assertEquals("Brock", new_brock.getName());
         assertEquals(2, new_brock.getTeam().size());
 
@@ -77,7 +94,7 @@ class TrainerControllerIntegrationTest {
     @Test
     void removeTrainer_ShouldRemoveAsh(){
         this.controller.removeTrainer("Ash");
-        var ash = this.restTemplate.getForObject("http://localhost:" + port + "/trainers/Ash", Trainer.class);
+        var ash = this.restTemplate.withBasicAuth(username, password).getForObject("http://localhost:" + port + "/trainers/Ash", Trainer.class);
         assertNull(ash);
 
     }
