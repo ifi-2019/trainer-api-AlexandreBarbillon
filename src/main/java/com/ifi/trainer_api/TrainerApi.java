@@ -34,7 +34,7 @@ public class TrainerApi {
             var starmie = new Pokemon(121, 21);
             misty.setTeam(List.of(staryu, starmie));
             misty.setPassword(bcpe.encode("misty_password"));
-
+            repository.deleteAll();
             // save a couple of trainers
             repository.save(ash);
             repository.save(misty);
