@@ -21,6 +21,11 @@ public class Trainer {
     public Trainer() {
     }
 
+    public Trainer(String name, List<Pokemon> team, String password) {
+        this.name = name;
+        this.team = team;
+        this.password = password;
+    }
 
     public Trainer(String name) {
         this.name = name;
