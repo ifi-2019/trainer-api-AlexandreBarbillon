@@ -10,11 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.repository.CrudRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@PropertySource("classpath:/ressources/test.properties")
+@PropertySource("classpath:/ressources/application.properties")
 @SpringBootTest
 class TrainerRepositoryTest {
 
@@ -43,6 +44,7 @@ class TrainerRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testSaveWithPokemons(){
 
         var misty = new Trainer("Misty");
@@ -53,8 +55,7 @@ class TrainerRepositoryTest {
         repository.save(misty);
 
         var saved = repository.findById(misty.getName()).orElse(null);
-        Hibernate.initialize(saved);
-        //assertEquals("Misty", saved.getName());
+        assertEquals("Misty", saved.getName());
         assertEquals(2, saved.getTeam().size());
     }
 
